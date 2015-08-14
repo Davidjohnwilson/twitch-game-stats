@@ -11,3 +11,7 @@ It consists of the following files:
 * `tgs_compare_two_games.py`: a python script to compare two game CSVs. Which game will come out top?
 
 THese scripts are intended to be used with `python3`.
+
+##Twitch API
+
+The [Twitch Developer Program](http://dev.twitch.tv/) offers an open [API](https://github.com/justintv/Twitch-API).

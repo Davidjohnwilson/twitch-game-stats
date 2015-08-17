@@ -7,6 +7,7 @@ Collate multiple twich JSONs into two CSVs.
 
 import sys
 import json
+import csv
 import glob
 import urllib.request 
 from datetime import datetime
@@ -26,5 +27,17 @@ if len(file_list) == 0:
 	raise ValueError("No JSON files available for %s." % decoded_game_name)
 print("%i JSON files found for %s." % (len(file_list),decoded_game_name))
 
-for i,f in enumerate(file_list):
-	print(f.split("|")[0]) 
+game_csv     = csv.writer(open(game_name+"_game_stats.csv",'wb+'))
+streamer_csv = csv.writer(open(game_name+"_streamer_stats.csv",'wb+'))
+
+# game_csv.writerow(["date", "total_streamers"])
+
+for i,f_n in enumerate(file_list):
+	print("File %i of %i: %s." % (i+1,len(file_list),f_n.split("|")[0])) 
+	f = open(f_n)
+	data = json.load(f)
+	f.close()
+	print("Total streams: %i" % data['_total'])
+
+
+

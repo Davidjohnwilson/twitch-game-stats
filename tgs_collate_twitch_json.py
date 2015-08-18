@@ -49,7 +49,16 @@ game_csv.writerow([
 	"max_followers",
 	"min_followers"])
 
-# TODO - Initialize the streamer_csv with headers
+streamer_csv.writerow([
+	"date",
+	"stream_id",
+	"streamer_name",
+	"viewers",
+	"top_stream",
+	"average_fps",
+	"language",
+	"lifetime_followers",
+	"lifetime_views"])
 
 for i,f_n in enumerate(file_list):
 	#We use enumerate to know which file we're on.
@@ -128,4 +137,30 @@ for i,f_n in enumerate(file_list):
 
 	#Write all this data to the game_csv.
 	game_csv.writerow(game_row)
+
+	#Now we cycle through the streamers and log them in the streamer_csv
+	for j,s in enumerate(streams):
+		stream_row = []
+
+		stream_row.append(date_time)
+		stream_row.append(s['_id'])
+		stream_row.append(s['channel']['display_name'])
+		stream_row.append(s['viewers'])
+
+		if s['viewers'] == max_viewers:
+			print("********************")
+			print("Max viewership: %i viewers on channel %s." % (max_viewers, s['channel']['display_name']))
+			print("********************")
+			stream_row.append(True)
+		else:
+			stream_row.append(False)
+
+		stream_row.append(s['average_fps'])
+		stream_row.append(s['channel']['language'])
+		stream_row.append(s['channel']['followers'])
+		stream_row.append(s['channel']['views'])
+
+		streamer_csv.writerow(stream_row)
+
+
 

@@ -21,23 +21,111 @@ else:
 	game_name = 'The%20Binding%20of%20Isaac%3A%20Rebirth'
 decoded_game_name = urllib.request.unquote(game_name)
 
+#Glob works like unix ls command - really cool!
 file_list = glob.glob("*|"+game_name+".json")
 
 if len(file_list) == 0:
 	raise ValueError("No JSON files available for %s." % decoded_game_name)
 print("%i JSON files found for %s." % (len(file_list),decoded_game_name))
 
-game_csv     = csv.writer(open(game_name+"_game_stats.csv",'wb+'))
-streamer_csv = csv.writer(open(game_name+"_streamer_stats.csv",'wb+'))
+#Open the two CSV files. One for the game level stats, 
+# another for streamer level stats.
+game_csv     = csv.writer(open(game_name+"_game_stats.csv",'wt+'))
+streamer_csv = csv.writer(open(game_name+"_streamer_stats.csv",'wt+'))
 
-# game_csv.writerow(["date", "total_streamers"])
+#Initialize the game_csv with headers
+game_csv.writerow([
+	"date", 
+	"total_streamers",
+	"partner_streamers",
+	"total_viewers",
+	"average_viewers",
+	"max_viewers",
+	"min_viewers",
+	"average_fps",
+	"max_fps",
+	"min_fps",
+	"average_followers",
+	"max_followers",
+	"min_followers"])
+
+# TODO - Initialize the streamer_csv with headers
 
 for i,f_n in enumerate(file_list):
-	print("File %i of %i: %s." % (i+1,len(file_list),f_n.split("|")[0])) 
+	#We use enumerate to know which file we're on.
+
+	#game_row will be used for game-level stats
+	game_row = []
+	print("--------------------------------")
+
+	#Pull out the date_time to use for each row.
+	date_time = f_n.split("|")[0]
+	game_row.append(date_time)
+	print("File %i of %i: %s." % (i+1,len(file_list),date_time)) 
+
+	#Parse the json file into a dictionary.
 	f = open(f_n)
 	data = json.load(f)
 	f.close()
-	print("Total streams: %i" % data['_total'])
 
+	#All the streamers are held under 'streams'
+	streams = data['streams']
 
+	#The total streams is just the length of streams.
+	total_streams = data['_total']
+	game_row.append(total_streams)
+	print("Total streams: %i" % total_streams)
+
+	#Look under channel->partner to see if the streamers are partners.
+	partner_streamers = [1 if s['channel']['partner'] else 0 for s in streams]
+	total_partners = sum(partner_streamers)
+	print("Total partners: %i" % total_partners)
+
+	#Looks at the viewership.
+	viewerships = [s['viewers'] for s in streams]
+	#Work out the total viewers for the game
+	total_viewers = sum(viewerships)
+	game_row.append(total_viewers)
+	print("Total viewers: %i" % total_viewers)
+	#Also the average viewers per stream.
+	average_viewers = total_viewers/total_streams
+	game_row.append(average_viewers)
+	print("Average viewers: %i" % average_viewers)
+	#And the max/min viewers
+	max_viewers = max(viewerships)
+	min_viewers = min(viewerships)
+	game_row.append(max_viewers)
+	game_row.append(min_viewers)
+	print("Max viewers: %i" % max_viewers)
+	print("Min viewers: %i" % min_viewers)
+
+	#Look at the average fps per stream, averaged for the game.
+	average_fpses = [s['average_fps'] for s in streams]
+	average_fps = sum(average_fpses)/len(average_fpses)
+	game_row.append(average_fps)
+	print("Average FPS: %i" % average_fps)
+	#Also look at the max and min averages.
+	max_fps = max(average_fpses)
+	min_fps = min(average_fpses)
+	game_row.append(max_fps)
+	game_row.append(min_fps)
+	print("Max FPS: %i" % max_fps)
+	print("Min FPS: %i" % min_fps)
+
+	#Look under channel->followers to see the streamers' followers.
+	followers = [s['channel']['followers'] for s in streams]
+	#Calculate the average followers per stream
+	average_followers = sum(followers)/len(followers)
+	game_row.append(average_followers)
+	print("Average Followers: %i" % average_followers)
+	#Also look at the max and min followers
+	max_followers = max(followers)
+	min_followers = min(followers)
+	game_row.append(max_followers)
+	game_row.append(min_followers)
+	print("Max followers: %i" % max_followers)
+	print("Min followers: %i" % min_followers)
+
+	#Write all this data to the game_csv.
+	game_csv.writerow(game_row)
 

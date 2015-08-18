@@ -13,6 +13,11 @@ import urllib.request
 from datetime import datetime
 from time import strftime
 
+def process_time(t):
+	dt = t.split("_")
+	dt[1] = dt[1][:2] + ":" + dt[1][2:4] + ":" + dt[1][4:]
+	return dt
+
 if len(sys.argv) > 1:
 	#If there's a game_name we use it
 	game_name = sys.argv[1]
@@ -36,6 +41,7 @@ streamer_csv = csv.writer(open(game_name+"_streamer_stats.csv",'wt+'))
 #Initialize the game_csv with headers
 game_csv.writerow([
 	"date", 
+	"time",
 	"total_streamers",
 	"partner_streamers",
 	"total_viewers",
@@ -51,6 +57,7 @@ game_csv.writerow([
 
 streamer_csv.writerow([
 	"date",
+	"time",
 	"stream_id",
 	"streamer_name",
 	"viewers",
@@ -69,8 +76,9 @@ for i,f_n in enumerate(file_list):
 
 	#Pull out the date_time to use for each row.
 	date_time = f_n.split("|")[0]
-	game_row.append(date_time)
-	print("File %i of %i: %s." % (i+1,len(file_list),date_time)) 
+	game_row.append(process_time(date_time)[0])
+	game_row.append(process_time(date_time)[1])
+	print("File %i of %i: %s at %s." % (i+1,len(file_list),process_time(date_time)[0],process_time(date_time)[1])) 
 
 	#Parse the json file into a dictionary.
 	f = open(f_n)
@@ -142,14 +150,15 @@ for i,f_n in enumerate(file_list):
 	for j,s in enumerate(streams):
 		stream_row = []
 
-		stream_row.append(date_time)
+		stream_row.append(process_time(date_time)[0])
+		stream_row.append(process_time(date_time)[1])
 		stream_row.append(s['_id'])
 		stream_row.append(s['channel']['display_name'])
 		stream_row.append(s['viewers'])
 
 		if s['viewers'] == max_viewers:
 			print("********************")
-			print("Max viewership: %i viewers on channel %s." % (max_viewers, s['channel']['display_name']))
+			print("Max viewership for %s at %s: %i viewers on channel %s." % (process_time(date_time)[0],process_time(date_time)[1],max_viewers, s['channel']['display_name']))
 			print("********************")
 			stream_row.append(True)
 		else:

@@ -96,6 +96,7 @@ for i,f_n in enumerate(file_list):
 	#Look under channel->partner to see if the streamers are partners.
 	partner_streamers = [1 if s['channel']['partner'] else 0 for s in streams]
 	total_partners = sum(partner_streamers)
+	game_row.append(total_partners)
 	print("Total partners: %i" % total_partners)
 
 	#Looks at the viewership.
